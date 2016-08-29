@@ -1,4 +1,4 @@
-[![Godoc Reference](https://godoc.org/github.com/aead/blake2b?status.svg)](https://godoc.org/github.com/aead/blake2b)
+[![Godoc Reference](https://godoc.org/github.com/aead/blake2b?status.svg)](https://godoc.org/github.com/aead/blake2b)
 
 ## The BLAKE2b hash algorithm
 
