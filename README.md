@@ -7,4 +7,4 @@ BLAKE2b can be directly keyed, making it functionally equivalent to a Message Au
 
 ### Installation
 
-Install in your GOPATH: `go get -u github.com/aead/blake2`
+Install in your GOPATH: `go get -u github.com/aead/blake2b`

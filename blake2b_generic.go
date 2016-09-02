@@ -4,7 +4,7 @@
 
 package blake2b
 
-// the precomputed values for blake2b
+// the precomputed values for BLAKE2b
 // there are 12 16-byte arrays - one for each round
 // the entries are calculated from the sigma constants.
 var precomputed = [12][16]byte{
