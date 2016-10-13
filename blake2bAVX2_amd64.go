@@ -7,7 +7,7 @@
 
 package blake2b
 
-var useAVX2 = supportAVX2() && false
+var useAVX2 = supportAVX2()
 var useSSE4 = supportSSE4()
 
 //go:noescape
