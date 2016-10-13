@@ -4,6 +4,8 @@
 
 package blake2b
 
+import "encoding/binary"
+
 // the precomputed values for BLAKE2b
 // there are 12 16-byte arrays - one for each round
 // the entries are calculated from the sigma constants.
@@ -39,8 +41,7 @@ func hashBlocksGeneric(h *[8]uint64, c *[2]uint64, flag uint64, blocks []byte) {
 		v14 ^= flag
 
 		for j := range m {
-			m[j] = uint64(blocks[i]) | uint64(blocks[i+1])<<8 | uint64(blocks[i+2])<<16 | uint64(blocks[i+3])<<24 |
-				uint64(blocks[i+4])<<32 | uint64(blocks[i+5])<<40 | uint64(blocks[i+6])<<48 | uint64(blocks[i+7])<<56
+			m[j] = binary.LittleEndian.Uint64(blocks[i:])
 			i += 8
 		}
 

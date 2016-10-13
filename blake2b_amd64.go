@@ -2,7 +2,8 @@
 // Use of this source code is governed by a license that can be
 // found in the LICENSE file.
 
-// +build !amd64, gccgo,appenigne
+// +build !go1.7
+// +build amd64, !gccgo,!appengine
 
 package blake2b
 
