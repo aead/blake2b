@@ -199,6 +199,7 @@ func testHashBlocks(t *testing.T, size int) {
 }
 
 func TestHashBlocks(t *testing.T) {
+	testHashBlocks(t, 256)
 	testHashBlocks(t, 512)
 	testHashBlocks(t, 1024)
 	testHashBlocks(t, 2048)

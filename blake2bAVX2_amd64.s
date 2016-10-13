@@ -19,12 +19,6 @@ DATA iv1<>+0x10(SB)/8, $0x1f83d9abfb41bd6b
 DATA iv1<>+0x18(SB)/8, $0x5be0cd19137e2179
 GLOBL iv1<>(SB), (NOPTR+RODATA), $32
 
-DATA counter<>+0x00(SB)/8, $0x80
-DATA counter<>+0x08(SB)/8, $0x0
-DATA counter<>+0x10(SB)/8, $0x0
-DATA counter<>+0x18(SB)/8, $0x0
-GLOBL counter<>(SB), (NOPTR+RODATA), $32
-
 DATA c40<>+0x00(SB)/8, $0x0201000706050403
 DATA c40<>+0x08(SB)/8, $0x0a09080f0e0d0c0b
 DATA c40<>+0x10(SB)/8, $0x0201000706050403
