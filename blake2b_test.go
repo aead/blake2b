@@ -71,7 +71,7 @@ var testVectors = []struct {
 
 func TestVectors(t *testing.T) {
 	for i, v := range testVectors {
-		h := New512(fromHex(v.key))
+		h, _ := New512(fromHex(v.key))
 		msg := fromHex(v.msg)
 
 		h.Write(msg)
@@ -102,13 +102,13 @@ func computeMAC(msg []byte, hashsize int, key []byte) (sum []byte) {
 	default:
 		panic("Unexpected hashsize")
 	case Size:
-		h = New512(key)
+		h, _ = New512(key)
 	case Size384:
-		h = New384(key)
+		h, _ = New384(key)
 	case Size256:
-		h = New256(key)
+		h, _ = New256(key)
 	case Size160:
-		h = New160(key)
+		h, _ = New160(key)
 	}
 	h.Write(msg)
 	sum = h.Sum(sum)
@@ -133,6 +133,7 @@ func computeHash(msg []byte, hashsize int) (sum []byte) {
 	return
 }
 
+// Test function from RFC 7693.
 func TestSelfTest(t *testing.T) {
 	var result = [32]byte{
 		0xC2, 0x3A, 0x78, 0x00, 0xD9, 0x81, 0x23, 0xBD,
@@ -146,7 +147,7 @@ func TestSelfTest(t *testing.T) {
 	msg := make([]byte, 1024)
 	key := make([]byte, 64)
 
-	h := New256(nil)
+	h, _ := New256(nil)
 	for _, hashsize := range hashLens {
 		for _, msgLength := range msgLens {
 			generateSequence(msg[:msgLength], uint32(msgLength)) // unkeyed hash
@@ -166,45 +167,6 @@ func TestSelfTest(t *testing.T) {
 	}
 }
 
-func testHashBlocks(t *testing.T, size int) {
-	var h0, h1 [8]uint64
-	var c0, c1 [2]uint64
-	data0, data1 := make([]byte, size), make([]byte, size)
-
-	h0, h1 = iv, iv
-	for i := range data0 {
-		data0[i] = byte(i)
-		data1[i] = byte(i)
-	}
-
-	hashBlocks(&h0, &c0, 0, data0)
-	hashBlocksGeneric(&h1, &c1, 0, data1)
-
-	if h0 != h1 {
-		t.Errorf("Size: %d: h0 != h1\nh0: %v\nh1: %v", size, h0, h1)
-	}
-	if c0 != c1 {
-		t.Errorf("Size: %d: c0 != c1\nc0: %v\nc1: %v", size, c0, c1)
-	}
-
-	hashBlocks(&h0, &c0, 0xFFFFFFFFFFFFFFFF, data0)
-	hashBlocksGeneric(&h1, &c1, 0xFFFFFFFFFFFFFFFF, data1)
-
-	if h0 != h1 {
-		t.Errorf("Size: %d: h0 != h1\nh0: %v\nh1: %v", size, h0, h1)
-	}
-	if c0 != c1 {
-		t.Errorf("Size: %d: c0 != c1\nc0: %v\nc1: %v", size, c0, c1)
-	}
-}
-
-func TestHashBlocks(t *testing.T) {
-	testHashBlocks(t, 256)
-	testHashBlocks(t, 512)
-	testHashBlocks(t, 1024)
-	testHashBlocks(t, 2048)
-}
-
 // Benchmarks
 
 func benchmarkSum(b *testing.B, size int) {
@@ -218,7 +180,7 @@ func benchmarkSum(b *testing.B, size int) {
 
 func benchmarkWrite(b *testing.B, size int) {
 	data := make([]byte, size)
-	h := New512(nil)
+	h, _ := New512(nil)
 	b.SetBytes(int64(size))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

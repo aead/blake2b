@@ -6,7 +6,11 @@
 // defined in RFC 7693.
 package blake2b
 
-import "hash"
+import (
+	"encoding/binary"
+	"errors"
+	"hash"
+)
 
 const (
 	// BlockSize is the blocksize of BLAKE2b in bytes.
@@ -20,6 +24,8 @@ const (
 	// Size160 is the hash size of BLAKE2b-160 in bytes.
 	Size160 = 20
 )
+
+var errKeySize = errors.New("invalid key size")
 
 var iv = [8]uint64{
 	0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
@@ -61,32 +67,32 @@ func Sum160(data []byte) [Size160]byte {
 }
 
 // New512 returns a new hash.Hash computing the BLAKE2b-512 checksum.
-// A non-nil key turns the hash into a MAC.
-func New512(key []byte) hash.Hash { return newDigest(Size, key) }
+// A non-nil key turns the hash into a MAC. The key must between 0 and 64 byte.
+func New512(key []byte) (hash.Hash, error) { return newDigest(Size, key) }
 
 // New384 returns a new hash.Hash computing the BLAKE2b-384 checksum.
-// A non-nil key turns the hash into a MAC.
-func New384(key []byte) hash.Hash { return newDigest(Size384, key) }
+// A non-nil key turns the hash into a MAC. The key must between 0 and 64 byte.
+func New384(key []byte) (hash.Hash, error) { return newDigest(Size384, key) }
 
 // New256 returns a new hash.Hash computing the BLAKE2b-256 checksum.
-// A non-nil key turns the hash into a MAC.
-func New256(key []byte) hash.Hash { return newDigest(Size256, key) }
+// A non-nil key turns the hash into a MAC. The key must between 0 and 64 byte.
+func New256(key []byte) (hash.Hash, error) { return newDigest(Size256, key) }
 
 // New160 returns a new hash.Hash computing the BLAKE2b-160 checksum.
-// A non-nil key turns the hash into a MAC.
-func New160(key []byte) hash.Hash { return newDigest(Size160, key) }
+// A non-nil key turns the hash into a MAC. The key must between 0 and 64 byte.
+func New160(key []byte) (hash.Hash, error) { return newDigest(Size160, key) }
 
-func newDigest(hashsize int, key []byte) (d *digest) {
+func newDigest(hashsize int, key []byte) (*digest, error) {
 	if len(key) > Size {
-		panic("blake2b: invalid key size")
+		return nil, errKeySize
 	}
-	d = &digest{
+	d := &digest{
 		size:   hashsize,
 		keyLen: len(key),
 	}
 	copy(d.key[:], key)
 	d.Reset()
-	return
+	return d, nil
 }
 
 func checkSum(sum *[Size]byte, hashsize int, data []byte) {
@@ -119,14 +125,7 @@ func checkSum(sum *[Size]byte, hashsize int, data []byte) {
 	hashBlocks(&h, &c, 0xFFFFFFFFFFFFFFFF, block[:])
 
 	for i, v := range h[:(hashsize+7)/8] {
-		sum[(i*8)+0] = byte(v)
-		sum[(i*8)+1] = byte(v >> 8)
-		sum[(i*8)+2] = byte(v >> 16)
-		sum[(i*8)+3] = byte(v >> 24)
-		sum[(i*8)+4] = byte(v >> 32)
-		sum[(i*8)+5] = byte(v >> 40)
-		sum[(i*8)+6] = byte(v >> 48)
-		sum[(i*8)+7] = byte(v >> 56)
+		binary.LittleEndian.PutUint64(sum[8*i:], v)
 	}
 }
 
@@ -203,14 +202,7 @@ func (d *digest) Sum(b []byte) []byte {
 
 	var sum [Size]byte
 	for i, v := range h[:(d.size+7)/8] {
-		sum[(i*8)+0] = byte(v)
-		sum[(i*8)+1] = byte(v >> 8)
-		sum[(i*8)+2] = byte(v >> 16)
-		sum[(i*8)+3] = byte(v >> 24)
-		sum[(i*8)+4] = byte(v >> 32)
-		sum[(i*8)+5] = byte(v >> 40)
-		sum[(i*8)+6] = byte(v >> 48)
-		sum[(i*8)+7] = byte(v >> 56)
+		binary.LittleEndian.PutUint64(sum[8*i:], v)
 	}
 
 	return append(b, sum[:d.size]...)
