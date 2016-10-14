@@ -107,7 +107,7 @@ func checkSum(sum *[Size]byte, hashsize int, data []byte) {
 	h[0] ^= uint64(hashsize) | (1 << 16) | (1 << 24)
 
 	if length := len(data); length > BlockSize {
-		n := length & (^(BlockSize - 1))
+		n := length &^ (BlockSize - 1)
 		if length == n {
 			n -= BlockSize
 		}
@@ -159,19 +159,18 @@ func (d *digest) Write(p []byte) (n int, err error) {
 
 	if d.off > 0 {
 		dif := BlockSize - d.off
-		if n > dif {
-			copy(d.block[d.off:], p[:dif])
-			hashBlocks(&d.h, &d.c, 0, d.block[:])
-			d.off = 0
-			p = p[dif:]
-		} else {
+		if n <= dif {
 			d.off += copy(d.block[d.off:], p)
 			return
 		}
+		copy(d.block[d.off:], p[:dif])
+		hashBlocks(&d.h, &d.c, 0, d.block[:])
+		d.off = 0
+		p = p[dif:]
 	}
 
 	if length := len(p); length > BlockSize {
-		nn := length & (^(BlockSize - 1))
+		nn := length &^ (BlockSize - 1)
 		if length == nn {
 			nn -= BlockSize
 		}
