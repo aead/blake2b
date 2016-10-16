@@ -101,13 +101,13 @@ GLOBL c48<>(SB), (NOPTR+RODATA), $16
 	PXOR   t2, v3
 
 #define LOAD_MSG(m0, m1, m2, m3, src, i0, i1, i2, i3, i4, i5, i6, i7) \
-	PINSRQ $0, i0*8(src), m0; \
+	MOVQ   i0*8(src), m0;     \
 	PINSRQ $1, i1*8(src), m0; \
-	PINSRQ $0, i2*8(src), m1; \
+	MOVQ   i2*8(src), m1;     \
 	PINSRQ $1, i3*8(src), m1; \
-	PINSRQ $0, i4*8(src), m2; \
+	MOVQ   i4*8(src), m2;     \
 	PINSRQ $1, i5*8(src), m2; \
-	PINSRQ $0, i6*8(src), m3; \
+	MOVQ   i6*8(src), m3;     \
 	PINSRQ $1, i7*8(src), m3
 
 // func hashBlocksSSE4(h *[8]uint64, c *[2]uint64, flag uint64, blocks []byte)

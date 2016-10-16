@@ -191,5 +191,5 @@ func benchmarkWrite(b *testing.B, size int) {
 func BenchmarkWrite128(b *testing.B) { benchmarkWrite(b, 128) }
 func BenchmarkWrite1K(b *testing.B)  { benchmarkWrite(b, 1024) }
 
-func BenchmarkSum128(b *testing.B) { benchmarkWrite(b, 128) }
-func BenchmarkSum1K(b *testing.B)  { benchmarkWrite(b, 1024) }
+func BenchmarkSum128(b *testing.B) { benchmarkSum(b, 128) }
+func BenchmarkSum1K(b *testing.B)  { benchmarkSum(b, 1024) }
