@@ -73,28 +73,28 @@ GLOBL c48<>(SB), (NOPTR+RODATA), $32
 	BYTE    $0xc4; BYTE $0xe3; BYTE $0xfd; BYTE $0x00; BYTE $0xc9; BYTE $0x93 \ // VPERMQ 0x93, Y1, Y1
 
 #define LOAD_MSG(m0, m1, m2, m3, src, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15) \
-	PINSRQ      $0, i0*8(src), X11;  \
+	MOVQ        i0*8(src), X11;      \
 	PINSRQ      $1, i1*8(src), X11;  \
 	VINSERTI128 $0, X11, m0, m0;     \
-	PINSRQ      $0, i2*8(src), X11;  \
+	MOVQ        i2*8(src), X11;      \
 	PINSRQ      $1, i3*8(src), X11;  \
 	VINSERTI128 $1, X11, m0, m0;     \
-	PINSRQ      $0, i4*8(src), X11;  \
+	MOVQ        i4*8(src), X11;      \
 	PINSRQ      $1, i5*8(src), X11;  \
 	VINSERTI128 $0, X11, m1, m1;     \
-	PINSRQ      $0, i6*8(src), X11;  \
+	MOVQ        i6*8(src), X11;      \
 	PINSRQ      $1, i7*8(src), X11;  \
 	VINSERTI128 $1, X11, m1, m1;     \
-	PINSRQ      $0, i8*8(src), X11;  \
+	MOVQ        i8*8(src), X11;      \
 	PINSRQ      $1, i9*8(src), X11;  \
 	VINSERTI128 $0, X11, m2, m2;     \
-	PINSRQ      $0, i10*8(src), X11; \
+	MOVQ        i10*8(src), X11;     \
 	PINSRQ      $1, i11*8(src), X11; \
 	VINSERTI128 $1, X11, m2, m2;     \
-	PINSRQ      $0, i12*8(src), X11; \
+	MOVQ        i12*8(src), X11;     \
 	PINSRQ      $1, i13*8(src), X11; \
 	VINSERTI128 $0, X11, m3, m3;     \
-	PINSRQ      $0, i14*8(src), X11; \
+	MOVQ        i14*8(src), X11;     \
 	PINSRQ      $1, i15*8(src), X11; \
 	VINSERTI128 $1, X11, m3, m3
 
@@ -117,13 +117,14 @@ TEXT ·hashBlocksAVX2(SB), 4, $0-48
 	VMOVDQU c40<>(SB), Y4
 	VMOVDQU c48<>(SB), Y5
 	VMOVDQU iv1<>(SB), Y6
-	
+
 	VMOVDQU 0(AX), Y8
 	VMOVDQU 32(AX), Y9
 
 	MOVQ 0(BX), R8
 	MOVQ 8(BX), R9
 	MOVQ R9, 8(SP)
+
 loop:
 	ADDQ $128, R8
 	MOVQ R8, 0(SP)
@@ -131,12 +132,12 @@ loop:
 	JGE  noinc
 	INCQ R9
 	MOVQ R9, 8(SP)
-	
+
 noinc:
 	VMOVDQA Y8, Y0
 	VMOVDQA Y9, Y1
 	VMOVDQU iv0<>(SB), Y2
-	VPXOR 0(SP), Y6, Y3
+	VPXOR   0(SP), Y6, Y3
 
 	LOAD_MSG(Y7, Y13, Y14, Y15, SI, 0, 2, 4, 6, 1, 3, 5, 7, 8, 10, 12, 14, 9, 11, 13, 15)
 	VMOVDQA Y13, 64(SP)
