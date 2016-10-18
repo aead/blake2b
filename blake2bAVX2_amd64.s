@@ -72,31 +72,28 @@ GLOBL c48<>(SB), (NOPTR+RODATA), $32
 	BYTE    $0xc4; BYTE $0xe3; BYTE $0xfd; BYTE $0x00; BYTE $0xd2; BYTE $0x4e \ // VPERMQ 0x4e, Y2, Y2
 	BYTE    $0xc4; BYTE $0xe3; BYTE $0xfd; BYTE $0x00; BYTE $0xc9; BYTE $0x93 \ // VPERMQ 0x93, Y1, Y1
 
-#define LOAD_MSG(m0, m1, m2, m3, src, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15) \
-	MOVQ        i0*8(src), X11;      \
-	PINSRQ      $1, i1*8(src), X11;  \
-	VINSERTI128 $0, X11, m0, m0;     \
+// load msg into Y12, Y13, Y14, Y15
+#define LOAD_MSG(src, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15) \
+	MOVQ        i0*8(src), X12;      \
+	PINSRQ      $1, i1*8(src), X12;  \
 	MOVQ        i2*8(src), X11;      \
 	PINSRQ      $1, i3*8(src), X11;  \
-	VINSERTI128 $1, X11, m0, m0;     \
-	MOVQ        i4*8(src), X11;      \
-	PINSRQ      $1, i5*8(src), X11;  \
-	VINSERTI128 $0, X11, m1, m1;     \
+	VINSERTI128 $1, X11, Y12, Y12;   \
+	MOVQ        i4*8(src), X13;      \
+	PINSRQ      $1, i5*8(src), X13;  \
 	MOVQ        i6*8(src), X11;      \
 	PINSRQ      $1, i7*8(src), X11;  \
-	VINSERTI128 $1, X11, m1, m1;     \
-	MOVQ        i8*8(src), X11;      \
-	PINSRQ      $1, i9*8(src), X11;  \
-	VINSERTI128 $0, X11, m2, m2;     \
+	VINSERTI128 $1, X11, Y13, Y13;   \
+	MOVQ        i8*8(src), X14;      \
+	PINSRQ      $1, i9*8(src), X14;  \
 	MOVQ        i10*8(src), X11;     \
 	PINSRQ      $1, i11*8(src), X11; \
-	VINSERTI128 $1, X11, m2, m2;     \
-	MOVQ        i12*8(src), X11;     \
-	PINSRQ      $1, i13*8(src), X11; \
-	VINSERTI128 $0, X11, m3, m3;     \
+	VINSERTI128 $1, X11, Y14, Y14;   \
+	MOVQ        i12*8(src), X15;     \
+	PINSRQ      $1, i13*8(src), X15; \
 	MOVQ        i14*8(src), X11;     \
 	PINSRQ      $1, i15*8(src), X11; \
-	VINSERTI128 $1, X11, m3, m3
+	VINSERTI128 $1, X11, Y15, Y15
 
 // func hashBlocksAVX2(h *[8]uint64, c *[2]uint64, flag uint64, blocks []byte)
 TEXT ·hashBlocksAVX2(SB), 4, $0-48
@@ -116,59 +113,59 @@ TEXT ·hashBlocksAVX2(SB), 4, $0-48
 
 	VMOVDQU c40<>(SB), Y4
 	VMOVDQU c48<>(SB), Y5
-	VMOVDQU iv1<>(SB), Y6
 
 	VMOVDQU 0(AX), Y8
 	VMOVDQU 32(AX), Y9
+	VMOVDQU iv0<>(SB), Y6
+	VMOVDQU iv1<>(SB), Y7
 
 	MOVQ 0(BX), R8
 	MOVQ 8(BX), R9
 	MOVQ R9, 8(SP)
-
 loop:
 	ADDQ $128, R8
 	MOVQ R8, 0(SP)
 	CMPQ R8, $128
 	JGE  noinc
-	INCQ R9
-	MOVQ R9, 8(SP)
+	INCQ 8(SP)
 
 noinc:
 	VMOVDQA Y8, Y0
 	VMOVDQA Y9, Y1
-	VMOVDQU iv0<>(SB), Y2
-	VPXOR   0(SP), Y6, Y3
+	VMOVDQU Y6, Y2
+	VPXOR   0(SP), Y7, Y3
 
-	LOAD_MSG(Y7, Y13, Y14, Y15, SI, 0, 2, 4, 6, 1, 3, 5, 7, 8, 10, 12, 14, 9, 11, 13, 15)
+	LOAD_MSG(SI, 0, 2, 4, 6, 1, 3, 5, 7, 8, 10, 12, 14, 9, 11, 13, 15)
+	VMOVDQA Y12, 32(SP)
 	VMOVDQA Y13, 64(SP)
 	VMOVDQA Y14, 96(SP)
 	VMOVDQA Y15, 128(SP)
-	ROUND(Y7, Y13, Y14, Y15, Y10, Y4, Y5)
-	LOAD_MSG(Y12, Y13, Y14, Y15, SI, 14, 4, 9, 13, 10, 8, 15, 6, 1, 0, 11, 5, 12, 2, 7, 3)
+	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
+	LOAD_MSG(SI, 14, 4, 9, 13, 10, 8, 15, 6, 1, 0, 11, 5, 12, 2, 7, 3)
 	VMOVDQA Y12, 160(SP)
 	VMOVDQA Y13, 192(SP)
 	VMOVDQA Y14, 224(SP)
 	VMOVDQA Y15, 256(SP)
 
 	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
-	LOAD_MSG(Y12, Y13, Y14, Y15, SI, 11, 12, 5, 15, 8, 0, 2, 13, 10, 3, 7, 9, 14, 6, 1, 4)
+	LOAD_MSG(SI, 11, 12, 5, 15, 8, 0, 2, 13, 10, 3, 7, 9, 14, 6, 1, 4)
 	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
-	LOAD_MSG(Y12, Y13, Y14, Y15, SI, 7, 3, 13, 11, 9, 1, 12, 14, 2, 5, 4, 15, 6, 10, 0, 8)
+	LOAD_MSG(SI, 7, 3, 13, 11, 9, 1, 12, 14, 2, 5, 4, 15, 6, 10, 0, 8)
 	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
-	LOAD_MSG(Y12, Y13, Y14, Y15, SI, 9, 5, 2, 10, 0, 7, 4, 15, 14, 11, 6, 3, 1, 12, 8, 13)
+	LOAD_MSG(SI, 9, 5, 2, 10, 0, 7, 4, 15, 14, 11, 6, 3, 1, 12, 8, 13)
 	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
-	LOAD_MSG(Y12, Y13, Y14, Y15, SI, 2, 6, 0, 8, 12, 10, 11, 3, 4, 7, 15, 1, 13, 5, 14, 9)
+	LOAD_MSG(SI, 2, 6, 0, 8, 12, 10, 11, 3, 4, 7, 15, 1, 13, 5, 14, 9)
 	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
-	LOAD_MSG(Y12, Y13, Y14, Y15, SI, 12, 1, 14, 4, 5, 15, 13, 10, 0, 6, 9, 8, 7, 3, 2, 11)
+	LOAD_MSG(SI, 12, 1, 14, 4, 5, 15, 13, 10, 0, 6, 9, 8, 7, 3, 2, 11)
 	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
-	LOAD_MSG(Y12, Y13, Y14, Y15, SI, 13, 7, 12, 3, 11, 14, 1, 9, 5, 15, 8, 2, 0, 4, 6, 10)
+	LOAD_MSG(SI, 13, 7, 12, 3, 11, 14, 1, 9, 5, 15, 8, 2, 0, 4, 6, 10)
 	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
-	LOAD_MSG(Y12, Y13, Y14, Y15, SI, 6, 14, 11, 0, 15, 9, 3, 8, 12, 13, 1, 10, 2, 7, 4, 5)
+	LOAD_MSG(SI, 6, 14, 11, 0, 15, 9, 3, 8, 12, 13, 1, 10, 2, 7, 4, 5)
 	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
-	LOAD_MSG(Y12, Y13, Y14, Y15, SI, 10, 8, 7, 1, 2, 4, 6, 5, 15, 9, 3, 13, 11, 14, 12, 0)
+	LOAD_MSG(SI, 10, 8, 7, 1, 2, 4, 6, 5, 15, 9, 3, 13, 11, 14, 12, 0)
 	ROUND(Y12, Y13, Y14, Y15, Y10, Y4, Y5)
 
-	ROUND(Y7, 64(SP), 96(SP), 128(SP), Y10, Y4, Y5)
+	ROUND(32(SP), 64(SP), 96(SP), 128(SP), Y10, Y4, Y5)
 	ROUND(160(SP), 192(SP), 224(SP), 256(SP), Y10, Y4, Y5)
 
 	VPXOR Y0, Y8, Y8

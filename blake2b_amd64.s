@@ -139,7 +139,7 @@ loop:
 	INCQ R9
 
 noinc:
-	PINSRQ $0, R8, X15
+	MOVQ R8, X15
 	PINSRQ $1, R9, X15
 
 	MOVOU 0(AX), X0
