@@ -2,15 +2,16 @@
 // Use of this source code is governed by a license that can be
 // found in the LICENSE file.
 
-// +build !go1.7
-// +build amd64, !gccgo,!appengine
+// +build !go1.7,amd64,!gccgo,!appengine
 
 package blake2b
 
-var useSSE4 = supportSSE4()
+func init() {
+	useSSE4 = supportsSSE4()
+}
 
 //go:noescape
-func supportSSE4() bool
+func supportsSSE4() bool
 
 //go:noescape
 func hashBlocksSSE4(h *[8]uint64, c *[2]uint64, flag uint64, blocks []byte)

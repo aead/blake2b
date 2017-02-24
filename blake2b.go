@@ -4,6 +4,10 @@
 
 // Package blake2b implemnets the BLAKE2b hash algorithm as
 // defined in RFC 7693.
+//
+// RFC 7693 defines BALKE2b-160 with 160 bit hash size, but
+// it's recommened to use hash sizes >= 256 bit to prevent birthday
+// attacks.
 package blake2b
 
 import (
@@ -23,6 +27,12 @@ const (
 	Size256 = 32
 	// Size160 is the hash size of BLAKE2b-160 in bytes.
 	Size160 = 20
+)
+
+var (
+	useSSE4 bool
+	useAVX  bool
+	useAVX2 bool
 )
 
 var errKeySize = errors.New("invalid key size")
