@@ -6,7 +6,7 @@
 // defined in RFC 7693.
 //
 // RFC 7693 defines BALKE2b-160 with 160 bit hash size, but
-// it's recommened to use hash sizes >= 256 bit to prevent birthday
+// it's recommend to use hash sizes >= 256 bit to prevent birthday
 // attacks.
 package blake2b
 
