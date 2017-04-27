@@ -6,8 +6,8 @@ BLAKE2b is a fast cryptographic hash function described in [RFC 7963](https://to
 BLAKE2b can be directly keyed, making it functionally equivalent to a Message Authentication Code (MAC).
 
 ### Recommendation 
-This BLAKE2b implementation was submited to the golang x/crypto repo.
-I recommend to use the offical [x/crypto/blake2b](https://godoc.org/golang.org/x/crypto/blake2b) package if possible.
+This BLAKE2b implementation was submitted to the golang x/crypto repo.
+I recommend to use the official [x/crypto/blake2b](https://godoc.org/golang.org/x/crypto/blake2b) package if possible.
 
 ### Installation
 
